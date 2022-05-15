@@ -60,62 +60,80 @@ class Connect4:
         else:
             raise ValueError("Column full")
 
+        self.plays_history.append((column, self._idim[1] - i))
+        self.get_win(column, self._idim[1] - i)
+
         if self.turn == Players.ONE:
             self.turn = Players.TWO
         else:
             self.turn = Players.ONE
 
-        self.plays_history.append((column, self._idim[1] - i))
-        self.get_win(column, self._idim[1] - i)
-
         return self._win_points
 
-    @staticmethod
-    def inspect_line(line, pos):
-        print(line, pos)
-        target = line[pos]
-        start = pos
-        while (tmp := start - 1) >= 0 and line[tmp] == target:
-            start = tmp
-
-        end = pos
-        while (tmp := end + 1) < len(line) and line[tmp] == target:
-            end = tmp
-
-        return start, end
-
-    def find_win(self, line, pos):
-        if abs(sub(*(tmp := self.inspect_line(line, pos)))) >= 3:
-            for i in range(tmp[0], tmp[1] + 1):
-                yield i
-
     def get_win(self, icolumn, irow):
-        # horizontal check
-        line = self._board[irow]
-        for i in self.find_win(line, icolumn):
-            self._win_points.add((irow, i))
+        target = self.get_turn()
+        print(target)
 
-        # vertical check
-        line = [row[icolumn] for row in self._board]
-        for i in self.find_win(line, irow):
-            self._win_points.add((i, icolumn))
+        lines = {
+            'horizontal': [{(irow, icolumn)}, True, True],
+            'vertical': [{(irow, icolumn)}, True, True],
+            'diagonal1': [{(irow, icolumn)}, True, True],
+            'diagonal2': [{(irow, icolumn)}, True, True]
+        }
 
-        # ascending check
-        if icolumn >= (dif := abs(irow - self._idim[1])):
-            tmp = icolumn - dif
-            m = min(self._dim[1] - tmp + 1, self._idim[0])
-            u, p = tmp, self._idim[1]
-        else:
-            tmp = icolumn + irow
-            m = min(tmp + 1, self._idim[1])
-            u, p = 0, tmp
+        for k in range(1, max(self._dim[0], self._dim[1])):
+            line = lines['horizontal']
+            if line[1] and (i := icolumn - k) >= 0 and self._board[irow][i] == target:
+                line[0].add((irow, i))
+            else:
+                print()
+                line[1] = False
 
-        line = [self._board[p - i][u + i] for i in range(m)]
-        for i in self.find_win(line, min(icolumn, self._idim[1] - irow)):
-            self._win_points.add((p - i, u + i))
+            if line[2] and (i := icolumn + k) < self._dim[0] and self._board[irow][i] == target:
+                line[0].add((irow, i))
+            else:
+                line[2] = False
 
-        # descending check
-        # hm I'm lazy
+            line = lines['vertical']
+            if line[1] and (i := irow - k) >= 0 and self._board[i][icolumn] == target:
+                line[0].add((i, icolumn))
+            else:
+                line[1] = False
+
+            if line[2] and (i := irow + k) < self._dim[1] and self._board[i][icolumn] == target:
+                line[0].add((i, icolumn))
+            else:
+                line[2] = False
+
+            line = lines['diagonal1']
+            if line[1] and (i := icolumn - k) >= 0 and (j := irow - k) >= 0 and self._board[j][i] == target:
+                line[0].add((j, i))
+            else:
+                line[1] = False
+
+            if line[2] and (i := icolumn + k) < self._dim[0] and (j := irow + k) < self._dim[1] and self._board[j][i] == target:
+                line[0].add((j, i))
+            else:
+                line[2] = False
+
+            line = lines['diagonal2']
+            if line[1] and (i := icolumn - k) >= 0 and (j := irow + k) < self._dim[1] and self._board[j][i] == target:
+                line[0].add((j, i))
+            else:
+                line[1] = False
+
+            if line[2] and (i := icolumn + k) < self._dim[0] and (j := irow - k) >= 0 and self._board[j][i] == target:
+                line[0].add((j, i))
+            else:
+                line[2] = False
+
+            if not any(check for info in lines.values() for check in info[1:]):
+                break
+
+
+        for line in lines.values():
+            if len(line[0]) >= 4:
+                self._win_points = line[0]
 
     def show_history(self):
         board = self.create_empty_board(self._dim)
@@ -127,6 +145,15 @@ class Connect4:
 
 def main():
     power4 = Connect4()
+    while True:
+        print(''.join(map(str, range(7))))
+        print(power4.strboard(empty="."))
+        play = input("Player {} turn: ".format(power4.get_turn()))
+        result = power4.play(int(play))
+
+        if result:
+            print("gg u win")
+            break
     plays = [1, 5, 1, 1, 2, 2, 2, 5, 3, 5, 3, 6, 3, 6, 3, 6, 0]
     for i in plays:
         if power4.play(i):
