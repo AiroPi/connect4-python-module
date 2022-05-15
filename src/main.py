@@ -1,7 +1,6 @@
 from operator import sub
-from typing import TypeAlias, Literal, Optional, Sequence
+from typing import TypeAlias, Literal, Sequence
 from enum import Enum
-from pprint import pprint
 
 
 Token: TypeAlias = str
@@ -152,26 +151,9 @@ def main():
         result = power4.play(int(play))
 
         if result:
+            print(power4.strboard(empty="."))
             print("gg u win")
             break
-    plays = [1, 5, 1, 1, 2, 2, 2, 5, 3, 5, 3, 6, 3, 6, 3, 6, 0]
-    for i in plays:
-        if power4.play(i):
-            break
-    print(power4.strboard())
-    # print(row[slice(*power4.inspect_row(row, 2))])
-    # print(power4._board)
-    # power4.play(0)
-    # power4.play(0)
-    # power4.play(0)
-    # print(power4.play(0))
-    # print(power4.play(0))
-    # print(power4.play(1))
-    # print(power4.play(1))
-    # print(power4.play(1))
-    # print(power4.play(1))
-    # print(power4.strboard())
-
 
 if __name__ == "__main__":
     main()
