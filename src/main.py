@@ -71,7 +71,6 @@ class Connect4:
 
     def get_win(self, icolumn, irow):
         target = self.get_turn()
-        print(target)
 
         lines = {
             'horizontal': [{(irow, icolumn)}, True, True],
