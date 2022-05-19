@@ -68,10 +68,11 @@ class Connect4:
         self.plays_history.append((column, self._idim[1] - i))
         self.get_win(column, self._idim[1] - i)
 
-        if self.turn == Players.ONE:
-            self.turn = Players.TWO
-        else:
-            self.turn = Players.ONE
+        if not self._win_points:
+            if self.turn == Players.ONE:
+                self.turn = Players.TWO
+            else:
+                self.turn = Players.ONE
 
         return self._win_points
 
