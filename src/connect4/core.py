@@ -149,3 +149,9 @@ class Connect4:
             board[row][column] = i + 1
 
         return board
+
+    def reset(self) -> None:
+        self._board = self.create_empty_board(self._dim)
+        self.plays_history = []
+        self._win_points = set()
+        self.turn = Players.ONE
