@@ -62,6 +62,15 @@ class Connect4:
         """
         return self._board
 
+    @property
+    def is_over(self) -> bool:
+        """Check if the game is over.
+
+        Returns:
+            bool: True if the game is over.
+        """
+        return bool(self._win_points)
+
     @staticmethod
     def create_empty_board(dimensions: Sequence[int]) -> list[list[Any]]:
         """Create a 0 filled board.
