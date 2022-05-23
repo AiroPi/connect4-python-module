@@ -219,7 +219,7 @@ class Connect4:
 
         for line in lines.values():
             if len(line.positions) >= 4:
-                self._win_points = line.positions
+                self._win_points |= line.positions
 
     def show_history(self) -> list[list[int]]:
         """Show the plays historic.
