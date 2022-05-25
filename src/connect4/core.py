@@ -10,6 +10,7 @@ Token: TypeAlias = str
 
 
 class Players(Enum):
+    NONE = 0
     ONE = 1
     TWO = 2
 
@@ -30,8 +31,8 @@ class Connect4:
         self.plays_history: list[tuple[int, int]] = []
         self._win_points: set[tuple[int, int]] = set()
 
-        self._board: list[list[Literal[0, 1, 2]]] = self.create_empty_board(self._dimensions)
-        self.turn: Players = Players.ONE
+        self._board: list[list[Players]] = self.create_empty_board(self._dimensions)
+        self._turn: Players = Players.ONE
 
         self._dim = self._dimensions
 
@@ -45,20 +46,20 @@ class Connect4:
         return self._dimensions
 
     @property
-    def yxboard(self) -> list[list[Literal[0, 1, 2]]]:
+    def yxboard(self) -> list[list[Players]]:
         """Return the board, but the sub lists are the columns.
 
         Returns:
-            list[list[Literal[0, 1, 2]]]: The board as an array. The columns are the sub lists. (0: empty, 1: player 1, 2: player 2)
+            list[list[Players]]: The board as an array. The columns are the sub lists. (0: empty, 1: player 1, 2: player 2)
         """
         return [[row[i] for row in self._board] for i in range(self._dim[1])[::-1]]
 
     @property
-    def board(self) -> list[list[Literal[0, 1, 2]]]:
+    def board(self) -> list[list[Players]]:
         """Get the current board.
 
         Returns:
-            list[list[Literal[0, 1, 2]]]: The board as an array. The rows are the sub lists (consider yxboard for the inverse). (0: empty, 1: player 1, 2: player 2)
+            list[list[Players]]: The board as an array. The rows are the sub lists (consider yxboard for the inverse). (0: empty, 1: player 1, 2: player 2)
         """
         return self._board
 
@@ -71,17 +72,51 @@ class Connect4:
         """
         return bool(self._win_points)
 
+    @property
+    def winner(self) -> Players | None:
+        """Get the winner. None if no winner. Players.NONE if tie.
+
+        Returns:
+            Players: The winner.
+        """
+        if self._win_points or self.turn == Players.NONE:
+            return self.turn
+        return None
+
+    @property
+    def turn(self) -> Players:
+        """Get the current player.
+
+        Returns:
+            Players: The player turn. Players.NONE if it's a tie.
+        """
+        return self._turn
+
+    @turn.setter
+    def turn(self, turn: Players) -> None:
+        """Set player turn (not recommended).
+
+        Args:
+            turn (Literal[Players.ONE, Players.TWO, 1, 2]): The player turn.
+        """
+        if turn == Players.ONE or turn == 1:
+            self._turn = Players.ONE
+        elif turn == Players.TWO or turn == 2:
+            self._turn = Players.TWO
+        else:
+            raise ValueError("Invalid player turn")
+
     @staticmethod
-    def create_empty_board(dimensions: Sequence[int]) -> list[list[Any]]:
+    def create_empty_board(dimensions: Sequence[int]) -> list[list[Players]]:
         """Create a 0 filled board.
 
         Args:
             dimensions (Sequence[int]): Dimensions to use for the board.
 
         Returns:
-            list[list[Any]]: A 0 filled board.
+            list[list[Players]]: A 0 filled board.
         """
-        return [[0] * dimensions[0] for _ in range(dimensions[1])]
+        return [[Players.NONE] * dimensions[0] for _ in range(dimensions[1])]
 
     def strboard(self, player1: Token = "x", player2: Token = "o", win_player1: Token = "X", win_player2: Token = "O", empty: Token = " ") -> str:
         """Format the board into a string.
@@ -96,18 +131,10 @@ class Connect4:
         Returns:
             str: The string board.
         """
-        board: list[list[int]] = cast(list[list[int]], self.board.copy())
+        board: list[list[int]] = [[case.value for case in row] for row in self.board]
         for row, column in self._win_points:
-            board[row][column] = 3 if self._board[row][column] == Players.ONE.value else 4
-        return ''.join(''.join((empty, player1, player2, win_player1, win_player2)[case] for case in row) + '\n' for row in self.board)[:-1]
-
-    def get_turn(self) -> Literal[1, 2]:
-        """Get the current player.
-
-        Returns:
-            Literal[1, 2]: The player number.
-        """
-        return self.turn.value
+            board[row][column] = 3 if self._board[row][column] == Players.ONE else 4
+        return ''.join(''.join((empty, player1, player2, win_player1, win_player2)[case] for case in row) + '\n' for row in board)[:-1]
 
     def play(self, column: int) -> set[tuple[int, int]]:
         """Drop a token in a column. Column is index based (starts at 0).
@@ -123,15 +150,15 @@ class Connect4:
         Returns:
             set[tuple[int, int]]: The points that's do the player win, if any.
         """
-        if self._win_points:
-            raise GameOver(self.get_turn())
+        if self._win_points or self.turn == Players.NONE:
+            raise GameOver(self.turn)
 
         if column < 0 or column >= self._dim[0]:
             raise InvalidColumn(column)
 
         for i, row in enumerate(self._board[::-1]):
-            if row[column] == 0:
-                row[column] = self.get_turn()
+            if row[column] == Players.NONE:
+                row[column] = self.turn
                 break
         else:
             raise ColumnFull(column)
@@ -140,7 +167,9 @@ class Connect4:
         self._get_win(column, self._idim[1] - i)
 
         if not self._win_points:
-            if self.turn == Players.ONE:
+            if self._check_tie():
+                self.turn = Players.NONE
+            elif self.turn == Players.ONE:
                 self.turn = Players.TWO
             else:
                 self.turn = Players.ONE
@@ -155,7 +184,7 @@ class Connect4:
             irow (int): The index-based row of the last play.
         """
 
-        target = self.get_turn()
+        target = self.turn
 
         @dataclass
         class T:
@@ -221,17 +250,8 @@ class Connect4:
             if len(line.positions) >= 4:
                 self._win_points |= line.positions
 
-    def show_history(self) -> list[list[int]]:
-        """Show the plays historic.
-
-        Returns:
-            list[list[int]]: The board, with plays order starting at 1.
-        """
-        board = self.create_empty_board(self._dim)
-        for i, (column, row) in enumerate(self.plays_history):
-            board[row][column] = i + 1
-
-        return board
+    def _check_tie(self):
+        return not any(case == Players.NONE for row in self._board for case in row)
 
     def reset(self) -> None:
         """
