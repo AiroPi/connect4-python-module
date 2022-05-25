@@ -6,7 +6,7 @@ import pytest
 
 def test_init():
     c4 = connect4.Connect4(dimensions=(4, 4))
-    assert c4.board == [[0] * 4 for i in range(4)]
+    assert c4.board == [[connect4.Players.NONE] * 4 for i in range(4)]
     assert c4.strboard() == ((' ' * 4 + '\n') * 4)[:-1]
 
 
@@ -23,7 +23,7 @@ def test_vertical_victory():
     with pytest.raises(connect4.GameOver) as exception:
         c4.play(1)
 
-    assert exception.value.winner == 1
+    assert exception.value.winner == connect4.Players.ONE
 
 
 def test_horizontal_victory():
@@ -39,7 +39,7 @@ def test_horizontal_victory():
     with pytest.raises(connect4.GameOver) as exception:
         c4.play(1)
 
-    assert exception.value.winner == 1
+    assert exception.value.winner == connect4.Players.ONE
 
 
 def test_diagonal1_victory():
@@ -59,7 +59,7 @@ def test_diagonal1_victory():
     with pytest.raises(connect4.GameOver) as exception:
         c4.play(3)
 
-    assert exception.value.winner == 1
+    assert exception.value.winner == connect4.Players.ONE
 
 
 def test_diagonal2_victory():
@@ -78,4 +78,4 @@ def test_diagonal2_victory():
     with pytest.raises(connect4.GameOver) as exception:
         c4.play(3)
 
-    assert exception.value.winner == 2
+    assert exception.value.winner == connect4.Players.TWO
