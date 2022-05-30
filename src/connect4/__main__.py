@@ -1,13 +1,13 @@
-from connect4 import Connect4
+from connect4 import Connect4, Players
 
-power4 = Connect4()
+c4 = Connect4()
 while True:
-    print(''.join(map(str, range(7))))
-    print(power4.strboard(empty="."))
-    play = input("Player {} turn: ".format(power4.get_turn()))
-    result = power4.play(int(play))
+    print(''.join(map(str, range(c4.dimensions[0]))))
+    print(c4.strboard(empty="."))
+    play = input(f"Player {c4.turn.value} turn: ")
+    result = c4.play(int(play))
 
-    if result:
-        print(power4.strboard(empty="."))
-        print("gg u win")
+    if result or c4.turn == Players.NONE:
+        print(c4.strboard(empty="."))
+        print(f"Player {c4.turn.value} wins!" if result else "Tie!")
         break
