@@ -62,3 +62,41 @@ def test_multiple_victory():
         {(2, 0), (2, 1), (2, 2), (2, 3), (5, 3), (4, 3), (3, 3), (2, 3)},
         connect4.Players.TWO
     )
+
+
+def test_column_full():
+    c4 = connect4.Connect4()
+    for i in range(6):
+        c4.play(0)
+
+    with pytest.raises(connect4.ColumnFull) as exception:
+        c4.play(0)
+
+    assert exception.value.column_index == 0
+
+
+def test_play_out_of_bounds():
+    c4 = connect4.Connect4()
+    with pytest.raises(connect4.InvalidColumn) as exception:
+        c4.play(7)
+
+    assert exception.value.column_index == 7
+
+
+def test_tie():
+    c4 = connect4.Connect4(dimensions=(5, 4))
+    plays = (0, 1, 3, 2, 4, 2, 0, 0, 1, 1, 3, 3, 4, 4, 0, 1, 2, 3, 4, 2)
+    for play in plays:
+        c4.play(play)
+    assert c4.turn == connect4.Players.NONE
+    with pytest.raises(connect4.GameOver) as exception:
+        c4.play(0)
+    assert exception.value.winner == connect4.Players.NONE
+
+
+def test_6_long_victory():
+    _test_victories(
+        (0, 0, 1, 1, 2, 2, 4, 4, 3),
+        {(5, 0), (5, 1), (5, 2), (5, 3), (5, 4)},
+        connect4.Players.ONE
+    )

@@ -103,6 +103,8 @@ class Connect4:
             self._turn = Players.ONE
         elif turn == Players.TWO or turn == 2:
             self._turn = Players.TWO
+        elif turn == Players.NONE or turn == 0:
+            self._turn = Players.NONE
         else:
             raise ValueError("Invalid player turn")
 
