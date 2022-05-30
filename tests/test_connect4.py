@@ -1,6 +1,3 @@
-from pprint import pprint
-from sqlite3 import connect
-
 import connect4
 import pytest
 

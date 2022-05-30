@@ -2,7 +2,7 @@ from __future__ import annotations
 
 from dataclasses import dataclass
 from enum import Enum
-from typing import Any, Literal, Sequence, TypeAlias, cast
+from typing import Sequence, TypeAlias
 
 from connect4.errors import ColumnFull, GameOver, InvalidColumn
 
