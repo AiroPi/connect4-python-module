@@ -30,7 +30,6 @@ jobs:
 
       - name: Run mypy
         run: py -m mypy ./src/ ./tests/
-          no-comments: ${{ matrix.python-version != '3.x' }}
 
       - name: Run flake8
         if: ${{ always() && steps.install-deps.outcome == 'success' }}
