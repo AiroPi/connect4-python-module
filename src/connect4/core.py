@@ -70,7 +70,7 @@ class Connect4:
         Returns:
             bool: True if the game is over.
         """
-        return bool(self._win_points)
+        return bool(self._win_points) or self.turn == Players.NONE
 
     @property
     def winner(self) -> Players | None:
@@ -152,7 +152,7 @@ class Connect4:
         Returns:
             set[tuple[int, int]]: The points that's do the player win, if any.
         """
-        if self._win_points or self.turn == Players.NONE:
+        if self.is_over:
             raise GameOver(self.turn)
 
         if column < 0 or column >= self._dim[0]:
