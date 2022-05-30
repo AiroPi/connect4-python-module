@@ -26,10 +26,10 @@ jobs:
 
       - name: Install dependencies
         id: install-deps
-        run: py -m pip install -U -r requirements_dev.txt
+        run: pip install -U -r requirements_dev.txt
 
       - name: Run mypy
-        run: py -m mypy ./src/ ./tests/
+        run: python3 -m mypy ./src/ ./tests/
 
       - name: Run flake8
         if: ${{ always() && steps.install-deps.outcome == 'success' }}
