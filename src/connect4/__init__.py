@@ -1,7 +1,7 @@
 __title__ = 'connect4.py'
 __author__ = 'airo.pi_'
 __license__ = 'MIT'
-__version__ = '1.0.1'
+__version__ = '1.0.2'
 
 from .core import Connect4 as Connect4
 from .core import Players as Players
